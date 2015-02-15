@@ -1,0 +1,42 @@
+<ion-view view-title="What's My Number?">
+{{playerId}}
+  <ion-content class="padding" ng-show="user.loggedIn">
+    <div class="list card"  >
+      <div class="item item-divider">Your number: {{user.number}}</div>
+      <div class="item item-body">
+        <div class="new-number">
+          <b>{{user.newNumber}}</b>
+        </div>
+        <button on-touch="rollAgain()" class="button">Roll again</button>
+        <button on-touch="saveNumber()" class="button">Keep this number</button>
+
+      </div>
+    </div>
+    <!-- <div class="list card">
+      <div class="item item-divider">Timeout</div>
+      <div class="item item-body">
+        <div>
+          You can go again in 11:32:15 seconds.
+        </div>
+      </div>
+    </div> -->
+    <div class="list card">
+      <div class="item item-divider">Ranking</div>
+      <div class="item item-body">
+        <div>
+          You are <b>{{user.rank}}</b> out of {{user.total}} players.
+        </div>
+      </div>
+    </div>
+  </ion-content>
+  <ion-content ng-hide="user.loggedIn">
+  <div class="list card">
+      <div class="item item-divider">Log In</div>
+      <div class="item item-body">
+        <div>
+          You must be logged in to play.
+        </div>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
