@@ -5,14 +5,14 @@
 </style>
 <ion-view view-title="What's My Number?">
   <ion-content>
-  <p>
+  <div class="padding">
     <ul>
       <li>Player ID: {{user.playerId}}</li>
       <li>Token: {{user.token}}</li>
-      <li>Logged In: {{user.loggedIn}}</li>
       <li>Username: {{user.username}}</li>
+      <!-- <li>Logged In: {{user.loggedIn}}</li> -->
     </ul>
-  </p>
+  </div>
     <!-- <ion-list>
       <ion-item class="item-toggle">
         Enable Friends
@@ -25,13 +25,13 @@
       </ion-item>
     </ion-list> -->
 
-    <form ng-submit="register(user)" name="registerForm" ng-hide="user.registered">
+    <form ng-submit="register(user)" name="registerForm" ng-hide="!registerFormIsOpen || forgottenPasswordFormIsOpen">
         <div class="list">
           <label class="item item-input">
             <span class="input-label">Username</span>
             <input  type="email" 
                     placeholder="Email address" 
-                    ng-model="user.username" 
+                    ng-model="registerUser.username" 
                     required>
           </label>
 
@@ -39,7 +39,7 @@
             <span class="input-label">Password</span>
             <input  type="password" 
                     placeholder="Password" 
-                    ng-model="user.password" 
+                    ng-model="registerUser.password" 
                     ng-minlength="8"
                     required>
           </label>
@@ -48,51 +48,90 @@
             <span class="input-label">Repeat Password</span>
             <input  type="password" 
                     placeholder="Repeat password" 
-                    ng-model="user.password_confirm" 
+                    ng-model="registerUser.password_confirm" 
+                    required>
+          </label>
+        </div>
+        <div class="padding" ng-show="registerError.email">
+          This email address is already registered.
+        </div>
+        <div class="padding" ng-show="registerError.general">
+          There was a problem registering your account.
+        </div>
+        <div class="padding">
+          <button type="submit" 
+                  class="button button-block button-balanced"
+                  ng-disabled="registerForm.$invalid">Register</button>
+        </div>
+    </form>
+
+      <!-- <form ng-submit="forgettenPassword()" name="forgottenPasswordForm" ng-hide="registerFormIsOpen || loginFormIsOpen">
+        <div class="list">
+          <label class="item item-input">
+            <span class="input-label">Email Address</span>
+            <input  type="email" 
+                    placeholder="Email address" 
+                    ng-model="forgottenEmail" 
                     required>
           </label>
         </div>
         <div class="padding">
           <button type="submit" 
                   class="button button-block button-positive"
-                  ng-disabled="registerForm.$invalid">Register</button>
+                  ng-disabled="forgottenPasswordForm.$invalid">Reset Password</button>
         </div>
-      </form>
+      </form> -->
 
-      <form ng-submit="login(user)" name="loginForm" ng-hide="user.loggedIn">
-        <div class="list">
-          <label class="item item-input">
-            <span class="input-label">Username</span>
-            <input  type="email" 
-                    placeholder="Email address" 
-                    ng-model="user.username" 
-                    value="{{username}}"
-                    required>
-          </label>
+    <form ng-submit="login()" name="loginForm" ng-hide="user.loggedIn || registerFormIsOpen || forgottenPasswordFormIsOpen">
+      <div class="list">
+        <label class="item item-input">
+          <span class="input-label">Username</span>
+          <input  type="email" 
+                  placeholder="Email address" 
+                  ng-model="loginUser.username" 
+                  required>
+        </label>
 
-          <label class="item item-input">
-            <span class="input-label">Password</span>
-            <input  type="password" 
-                    placeholder="Password" 
-                    ng-model="user.password" 
-                    ng-minlength="8"
-                    required>
+        <label class="item item-input">
+          <span class="input-label">Password</span>
+          <input  type="password" 
+                  placeholder="Password" 
+                  ng-model="loginUser.password" 
+                  ng-minlength="8"
+                  required>
           </label>         
+        </div>
+        <div class="padding" ng-show="loginError">
+          Your details were not recognised.
         </div>
         <div class="padding">
           <button type="submit" 
                   class="button button-block button-positive"
                   ng-disabled="loginForm.$invalid">Login</button>
         </div>
-      </form>
+        <div class="padding">
+          <a ng-click="loginFormIsOpen = false;registerFormIsOpen = true;forgottenPasswordFormIsOpen = false">Register</a>
+        </div>
+    </form>
+
+    
+      <!-- <div class="padding" ng-hide="forgottenPasswordFormIsOpen">
+          <button class="button button-small button-energized"
+                  ng-click="loginFormIsOpen = false;registerFormIsOpen = false;forgottenPasswordFormIsOpen = true">I've forgotten my password</button>
+      </div> -->
 
       <div class="padding" ng-show="user.loggedIn">
-      <h3>
-          You are logged in.
-      </h3>
           <button type="submit" 
                   ng-click="logout()"
-                  class="button button-block button-positive">Log out</button>
+                  class="button button-block button-calm">Log out</button>
       </div>
+
+      <div class="padding" ng-hide="loginFormIsOpen">
+          <a ng-click="loginFormIsOpen = true;registerFormIsOpen = false;forgottenPasswordFormIsOpen = false">Login</a>
+    </div>
+    <!-- <div class="padding" ng-hide="registerFormIsOpen">
+        <a ng-click="loginFormIsOpen = false;registerFormIsOpen = true;forgottenPasswordFormIsOpen = false">Register</a>
+    </div> -->
+
   </ion-content>
 </ion-view>

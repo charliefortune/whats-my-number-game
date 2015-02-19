@@ -2,41 +2,88 @@ angular.module('starter.services', [])
 
 .factory('UserService', ['$http',function($http) {
   
-  var user = {playerId : null, username: '', token : '', number : null, rank : null, total: null, loggedIn : false, newNumber : null, registered : true}
-  
-  user.rollAgain = function(){
+  var userService = {};
+  var user = {};
+
+  loadUser();
+
+  function loadUser(){
+    user = JSON.parse(window.localStorage['user']);
+    if(angular.isUndefined(user)){
+      console.log('Initialising User');
+      user = {playerId : null, username: '', token : '', number : null, rank : null, total: null, loggedIn : false, newNumber : null, registered : true};
+      //userService.saveUser();
+    }
+  };
+
+  userService.saveUser = function(){
+    window.localStorage['user'] = JSON.stringify(user);
+    console.log("Saving User");
+  };
+
+  userService.getUser = function(){
+    return user;
+  };
+
+  userService.rollAgain = function(){
     user.newNumber = Math.floor(Math.random()*1001);
   };
 
-  user.saveNumber = function(){
+  userService.saveNumber = function(){
     user.number = user.newNumber;
-    user.getRank();
-  }
+    $http.get('http://whatsmynumbergame.co.uk/api/save_number/' + user.playerId + '/' + user.newNumber).then(function(response){
+      userService.getRank();
+    });
+    userService.saveUser();
+  };
 
-  user.getRank = function(){
+  userService.getRank = function(){
     $http.get('http://whatsmynumbergame.co.uk/api/lookup_rank/' + user.playerId + '/' + user.number).then(function(response){
       user.rank = response.data.rank;
       user.total = response.data.total;
-      console.log(response);
+      userService.saveUser();
     });
-  }
+  };
 
-  user.logout = function(){
+  userService.register = function(registerUser){
+    $http.post('http://whatsmynumbergame.co.uk/api/register/',{user: registerUser}).then(function(response){
+      console.log(response);
+      if(response.error){
+         //error
+      }
+      else if(response.data.token !== null){
+        //success
+        user.playerId = response.data.token;
+        user.username = registerUser.username;
+      }
+    });
+  };
+
+  userService.logout = function(){
     user.loggedIn = false;
-  }
+    user.token = null;
+    userService.saveUser();
+  };
 
   /**
   * Log a user in via api call and save the token, or return error.
   */
-  user.login = function(){
-    $http.post('http://whatsmynumbergame.co.uk/api/login/',{user: user}).then(function(response){
+  userService.login = function(loginUser){
+    console.log(loginUser);
+    $http.post('http://whatsmynumbergame.co.uk/api/login/',{user: loginUser}).then(function(response){
       console.log(response);
       if(response.data.token){
               //save the token.
               user.loggedIn = true;
+              user.username = loginUser.username;
               user.token = response.data.token;
-              user.playerId = response.data.id;
+              user.playerId = response.data.player_id;
+              user.number = response.data.number;
+              user.rank = response.data.rank;
+              user.total = response.data.total;
+              userService.saveUser();
             }
+
             else{
               //error
               user.loggedIn = false;
@@ -45,15 +92,7 @@ angular.module('starter.services', [])
         });
   };
 
-  user.loadUser = function(){
-    user = window.localStorage['user'];
-  }
-
-  user.saveUser = function(){
-    window.localStorage['user'] = user;
-  }
-
-  return user;
+  return userService;
 }])
 
 
