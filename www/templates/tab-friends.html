@@ -1,5 +1,9 @@
 <ion-view view-title="What's My Number?">
   <ion-content>
+  <div class="padding">
+        <button ng-click="getFriends()"
+                class="button button-block button-calm">Find Friends</button>
+    </div>
     <ion-list>
       <ion-item class="item-avatar" ng-repeat="friend in friends" type="item-text-wrap" href="#/tab/friend/{{friend.id}}">
         <img ng-src="{{friend.face}}">

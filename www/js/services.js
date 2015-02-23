@@ -1,4 +1,4 @@
-angular.module('starter.services', [])
+angular.module('starter.services', ['ngCordova'])
 
 .factory('UserService', ['$http',function($http) {
   
@@ -8,11 +8,32 @@ angular.module('starter.services', [])
   loadUser();
 
   function loadUser(){
-    user = JSON.parse(window.localStorage['user']);
-    if(angular.isUndefined(user)){
-      console.log('Initialising User');
-      user = {playerId : null, username: '', token : '', number : null, rank : null, total: null, loggedIn : false, newNumber : null, registered : true};
-      //userService.saveUser();
+    //Adding new properties to initUser will add them to the user object next time it is loaded up.
+    initUser = {playerId : null, 
+              username: '',
+              email: '',
+              token : '',
+              number : null,
+              numberRolls : 3,
+              maxRolls : 5,
+              rank : null,
+              total: null,
+              loggedIn : false,
+              newNumber : null,
+              facebookData : {token : null, expires_in : null}
+            };
+    var savedUser = window.localStorage['user'];
+    if(savedUser != null){
+      user = JSON.parse(savedUser);
+    }
+    //Check all of the properties exist on the saved user, otherwise add them.
+    for(i in initUser){
+      if(!user.hasOwnProperty(i)){
+        console.log(i + ":" + initUser[i]);
+        user.i = initUser[i];
+      }
+    user.numberRolls = user.numberRolls < 1 ? 0 : user.numberRolls;
+    user.numberRolls = 3; //Development
     }
   };
 
@@ -25,22 +46,52 @@ angular.module('starter.services', [])
     return user;
   };
 
+  /**
+  * Validate the users token against the api and get an updated copy of the user record.
+  */
+  userService.validateToken = function(){
+    $http.get('http://whatsmynumbergame.co.uk/api/validate_token/' + user.token).then(function(response){
+      console.log(response);
+    });
+  };
+
   userService.rollAgain = function(){
     user.newNumber = Math.floor(Math.random()*1001);
+    user.numberRolls = user.numberRolls-1;
   };
 
   userService.saveNumber = function(){
     user.number = user.newNumber;
     $http.get('http://whatsmynumbergame.co.uk/api/save_number/' + user.playerId + '/' + user.newNumber).then(function(response){
       userService.getRank();
+      userService.saveUser();
     });
-    userService.saveUser();
   };
 
   userService.getRank = function(){
     $http.get('http://whatsmynumbergame.co.uk/api/lookup_rank/' + user.playerId + '/' + user.number).then(function(response){
       user.rank = response.data.rank;
       user.total = response.data.total;
+      var number = user.rank.toString().slice(-1);
+      switch (number){
+        
+        case '1':
+          user.ordinal = 'st';
+          break;
+
+        case '2':
+          user.ordinal = 'nd';
+          break;
+
+        case '3':
+          user.ordinal = 'rd';
+          break;
+
+        default:
+          user.ordinal = 'th';
+          break;
+      };
+      console.log(number + ':' + user.ordinal);
       userService.saveUser();
     });
   };
@@ -65,9 +116,6 @@ angular.module('starter.services', [])
     userService.saveUser();
   };
 
-  /**
-  * Log a user in via api call and save the token, or return error.
-  */
   userService.login = function(loginUser){
     console.log(loginUser);
     $http.post('http://whatsmynumbergame.co.uk/api/login/',{user: loginUser}).then(function(response){
@@ -95,109 +143,6 @@ angular.module('starter.services', [])
   return userService;
 }])
 
-
-.factory('SettingsFactory', ['$http',function($http) {
-
-  var number = window.localStorage['number'] || Math.floor(Math.random()*1001);
-  
-  //var user = {playerId : 0, username: '', token : '', number : 0, loggedIn : false}
-
-  var loggedIn = false;
-
-  var obj = {};      
-  
-  obj.loggedIn = function(){
-    return loggedIn;
-  }
-
-  obj.getNumber = function(){
-    return number;
-  };
-  obj.saveNumber = function(playerId, newNumber) {
-    window.localStorage['number'] = newNumber;
-    return $http.get('http://whatsmynumbergame.co.uk/api/save_number/' + playerId + '/' + newNumber);
-  };
-  obj.getRank = function(playerId, number){
-    return $http.get('http://whatsmynumbergame.co.uk/api/lookup_rank/' + playerId + '/' + number);
-  };
-  obj.rollAgain = function(){
-    number = Math.floor(Math.random()*1001);
-    return number;
-  };
-  obj.saveUser = function(user) {
-    console.log("Saving user via service.");
-    console.log(user);
-    window.localStorage['user'] = angular.toJson(user);
-  };
-  obj.getUser = function(){
-    return angular.JSON(window.localStorage['user']);
-  }
-  obj.saveToken = function(token){
-    console.log("Save token:" + token);
-    window.localStorage['token'] = token;
-  };
-  obj.getToken = function(){
-    return null;
-    return window.localStorage['token'];
-  };
-  obj.validateToken = function(){
-      //Call the API to validate an access token, and possibly receive a new one.
-      var playerId = obj.getPlayerId();
-      var token = obj.getToken();
-      return $http.post('http://whatsmynumbergame.co.uk/api/validate_token/' + playerId + '/' + token);
-      //return $http.get('http://whatsmynumbergame.co.uk/api/register/');
-    };
-    obj.isLoggedIn = function(){
-      console.log(window.localStorage['token']);
-      return window.localStorage['token'] !== null;
-    };
-    obj.register = function(user){
-    //console.log(user);
-    return $http.post('http://whatsmynumbergame.co.uk/api/register/',{user: user});
-    //return $http.get('http://whatsmynumbergame.co.uk/api/register/');
-  };
-  obj.savePlayerId = function(id){
-    window.localStorage['playerId'] = id;
-  };
-  obj.getPlayerId = function(){
-    return window.localStorage['playerId'];
-  };
-
-  obj.saveUsername = function(username){
-    window.localStorage['username'] = username;
-  };
-  obj.getUsername = function(){
-    return window.localStorage['username'];
-  };
-  /**
-  * Log a user in via api call and save the token, or return error.
-  */
-  obj.login = function(user){
-    return $http.post('http://whatsmynumbergame.co.uk/api/login/',{user: user}).then(function(response){
-      console.log('response from login via service');
-      console.log(response);
-      if(response.data.token){
-              //save the token.
-              console.log('logged in');
-              loggedIn = true;
-              obj.saveToken(response.data.token);
-              obj.savePlayerId(response.data.id);
-            }
-            else{
-              //error
-              console.log('Error logging in');
-              loggedIn = false;
-              obj.saveToken(null);
-            }
-            return {'playerId' : response.data.id, 'token' : response.data.token};
-          });
-  };
-  obj.logout = function(){
-    loggedIn = false;
-    window.localStorage['token'] = null;
-  }
-  return obj;
-}])
 
 // .factory('Chats', function() {
 //   // Might use a resource here that returns a JSON array

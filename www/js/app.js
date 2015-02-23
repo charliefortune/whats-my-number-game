@@ -5,9 +5,11 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services','ngCordova','openfb'])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, OpenFB, $state, $rootScope, $window) {
+
+  OpenFB.init('1593921350820670');
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -19,7 +21,20 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       StatusBar.styleDefault();
     }
   });
-})
+
+  // $rootScope.$on('$stateChangeStart', function(event, toState) {
+  //   if (toState.name !== "tab.account" && !$window.sessionStorage['fbtoken']) {
+  //     $state.go('tab.account');
+  //     event.preventDefault();
+  //     }
+  //   });
+
+  $rootScope.$on('OAuthException', function() {
+        $state.go('tab.account');
+    });
+
+  })
+
 
 .config(function($stateProvider, $urlRouterProvider) {
 

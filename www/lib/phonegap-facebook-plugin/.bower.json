@@ -1,0 +1,15 @@
+{
+  "name": "phonegap-facebook-plugin",
+  "homepage": "https://github.com/phonegap/phonegap-facebook-plugin",
+  "version": "0.11.0",
+  "_release": "0.11.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.11.0",
+    "commit": "c428acf22dce58f0873cad74bebe64d4187c6d14"
+  },
+  "_source": "https://github.com/phonegap/phonegap-facebook-plugin.git",
+  "_target": "~0.11.0",
+  "_originalSource": "https://github.com/phonegap/phonegap-facebook-plugin.git",
+  "_direct": true
+}

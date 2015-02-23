@@ -7,9 +7,9 @@
   <ion-content>
   <div class="padding">
     <ul>
-      <li>Player ID: {{user.playerId}}</li>
-      <li>Token: {{user.token}}</li>
-      <li>Username: {{user.username}}</li>
+      <!-- <li>Player ID: {{user.playerId}}</li>
+      <li>Token: {{user.token}}</li> -->
+      <li ng-show="user.loggedIn">Logged in as: {{user.username}}</li>
       <!-- <li>Logged In: {{user.loggedIn}}</li> -->
     </ul>
   </div>
@@ -25,13 +25,13 @@
       </ion-item>
     </ion-list> -->
 
-    <form ng-submit="register(user)" name="registerForm" ng-hide="!registerFormIsOpen || forgottenPasswordFormIsOpen">
+    <form ng-submit="register(user)" name="registerForm" ng-show="user.playerId == null">
         <div class="list">
           <label class="item item-input">
-            <span class="input-label">Username</span>
+            <span class="input-label">Email</span>
             <input  type="email" 
                     placeholder="Email address" 
-                    ng-model="registerUser.username" 
+                    ng-model="registerUser.email" 
                     required>
           </label>
 
@@ -82,7 +82,7 @@
         </div>
       </form> -->
 
-    <form ng-submit="login()" name="loginForm" ng-hide="user.loggedIn || registerFormIsOpen || forgottenPasswordFormIsOpen">
+    <form ng-submit="login()" name="loginForm" ng-show="!user.loggedIn && user.playerId > 0">
       <div class="list">
         <label class="item item-input">
           <span class="input-label">Username</span>
@@ -113,22 +113,31 @@
           <a ng-click="loginFormIsOpen = false;registerFormIsOpen = true;forgottenPasswordFormIsOpen = false">Register</a>
         </div>
     </form>
-
-    
-      <!-- <div class="padding" ng-hide="forgottenPasswordFormIsOpen">
-          <button class="button button-small button-energized"
-                  ng-click="loginFormIsOpen = false;registerFormIsOpen = false;forgottenPasswordFormIsOpen = true">I've forgotten my password</button>
-      </div> -->
-
-      <div class="padding" ng-show="user.loggedIn">
-          <button type="submit" 
-                  ng-click="logout()"
-                  class="button button-block button-calm">Log out</button>
+      <div class="padding" ng-hide="user.loggedIn">
+        <button type="submit" 
+                ng-click="facebookLogin()"
+                class="button button-block button-positive">Connect with Facebook</button>
       </div>
+      <div class="padding" ng-hide="user.loggedIn">
+        <button type="submit" 
+                ng-click="facebookRegister()"
+                class="button button-block button-positive">Register with Facebook</button>
+      </div>
+  
+    <!-- <div class="padding" ng-hide="forgottenPasswordFormIsOpen">
+        <button class="button button-small button-energized"
+                ng-click="loginFormIsOpen = false;registerFormIsOpen = false;forgottenPasswordFormIsOpen = true">I've forgotten my password</button>
+    </div> -->
 
-      <div class="padding" ng-hide="loginFormIsOpen">
-          <a ng-click="loginFormIsOpen = true;registerFormIsOpen = false;forgottenPasswordFormIsOpen = false">Login</a>
+    <div class="padding" ng-show="user.loggedIn">
+        <button type="submit" 
+                ng-click="logout()"
+                class="button button-block button-calm">Log out</button>
     </div>
+
+    <!-- <div class="padding" ng-hide="loginFormIsOpen">
+        <a ng-click="loginFormIsOpen = true;registerFormIsOpen = false;forgottenPasswordFormIsOpen = false">Login</a>
+    </div> -->
     <!-- <div class="padding" ng-hide="registerFormIsOpen">
         <a ng-click="loginFormIsOpen = false;registerFormIsOpen = true;forgottenPasswordFormIsOpen = false">Register</a>
     </div> -->
